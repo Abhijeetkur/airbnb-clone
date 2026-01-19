@@ -1,42 +1,44 @@
-package com.abhijeet.airbnb_backend.entity.property;
+    package com.abhijeet.airbnb_backend.entity.property;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+    import com.fasterxml.jackson.annotation.JsonIgnore;
+    import jakarta.persistence.*;
+    import lombok.AllArgsConstructor;
+    import lombok.Data;
+    import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.Set;
+    import java.time.LocalDateTime;
+    import java.util.Set;
 
-@Entity
-@Table(name = "place_type")
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-public class PlaceType {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Entity
+    @Table(name = "place_type")
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    public class PlaceType {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
-    @Column(name = "type_name")
-    private String typeName;
+        @Column(name = "type_name")
+        private String typeName;
 
-    @OneToMany(mappedBy = "placeType")
-    private Set<Property> properties;
+        @JsonIgnore
+        @OneToMany(mappedBy = "placeType")
+        private Set<Property> properties;
 
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+        @Column(updatable = false)
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
 
 
-    @PrePersist
-    protected void onCreate(){
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        @PrePersist
+        protected void onCreate(){
+            createdAt = LocalDateTime.now();
+            updatedAt = LocalDateTime.now();
+        }
+
+        @PreUpdate
+        protected void onUpdate(){
+            updatedAt = LocalDateTime.now();
+        }
     }
-
-    @PreUpdate
-    protected void onUpdate(){
-        updatedAt = LocalDateTime.now();
-    }
-}

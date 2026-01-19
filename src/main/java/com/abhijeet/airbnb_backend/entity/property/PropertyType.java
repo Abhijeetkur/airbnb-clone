@@ -1,5 +1,6 @@
 package com.abhijeet.airbnb_backend.entity.property;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class PropertyType {
     @Column(name = "type_name")
     private String typeName;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "propertyType")
     private Set<Property> properties;
 

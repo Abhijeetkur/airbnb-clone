@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/become-host").authenticated()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/host/**").hasRole("HOST")
+                        .requestMatchers("/api/v1/metadata/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 // 2. KEEP THIS FOR LOGOUT

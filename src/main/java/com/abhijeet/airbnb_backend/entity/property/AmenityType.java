@@ -1,6 +1,8 @@
 package com.abhijeet.airbnb_backend.entity.property;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +24,9 @@ public class AmenityType {
     @Column(name = "amenity_name")
     private String amenityName;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "amenityType")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Set<Amenity> amenities;
 
     @Column(updatable = false)

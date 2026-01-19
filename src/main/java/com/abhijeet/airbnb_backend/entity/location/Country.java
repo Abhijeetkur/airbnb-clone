@@ -1,5 +1,6 @@
 package com.abhijeet.airbnb_backend.entity.location;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class Country {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id", nullable = false)
+    @JsonIgnore
     private Region region;
 
     @OneToMany(mappedBy = "country", cascade = CascadeType.ALL, orphanRemoval = true)
