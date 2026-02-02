@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -23,7 +24,8 @@ public class PropertyType {
     private String typeName;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "propertyType")
+    @OneToMany(mappedBy = "propertyType", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private Set<Property> properties;
 
     @Column(updatable = false)

@@ -80,4 +80,6 @@ public class UserController {
                 SecurityContextHolder.getContext());
         return ResponseEntity.ok(new ApiResponse("You are now a Host!", true, LocalDateTime.now().toString()));
     }
+
+
 }

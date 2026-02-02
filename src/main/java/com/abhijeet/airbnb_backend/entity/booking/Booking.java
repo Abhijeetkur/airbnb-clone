@@ -1,9 +1,9 @@
 package com.abhijeet.airbnb_backend.entity.booking;
 
+import com.abhijeet.airbnb_backend.entity.property.Property;
+import com.abhijeet.airbnb_backend.entity.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,13 +12,25 @@ import java.util.List;
 
 @Entity
 @Table(name = "booking")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "property_id")
+    private Property property;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User guest;
+
+    @Column(name = "total_amount")
+    private BigDecimal totalAmount;
 
     @Column(name = "nightly_price")
     private BigDecimal nightlyPrice;
@@ -31,25 +43,23 @@ public class Booking {
     private List<BookingGuest> bookingGuests;
 
     @Column(name = "check_in")
-    private LocalDate checkIn;
+    private LocalDate checkInDate;
 
     @Column(name = "check_out")
-    private LocalDate checkOut;
+    private LocalDate checkOutDate;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    protected void onUpdate(){
+    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-
 }

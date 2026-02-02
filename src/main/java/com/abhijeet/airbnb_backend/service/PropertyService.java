@@ -8,6 +8,8 @@ import com.abhijeet.airbnb_backend.entity.user.User;
 import com.abhijeet.airbnb_backend.repository.property.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -74,6 +76,19 @@ public class PropertyService {
         return response;
     }
 
+    public PropertyResponse getPropertyById(Long id) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found with id: " + id));
+        return mapToResponse(property);
+    }
+    public Page<PropertyResponse> getAllProperties(Pageable pageable) {
+        // 1. Fetch the paginated entities from DB
+        Page<Property> propertyPage = propertyRepository.findAll(pageable);
+
+        // 2. Convert (map) the entities to DTOs
+        return propertyPage.map(this::mapToResponse);
+    }
+
     private PropertyResponse mapToResponse(Property property) {
         PropertyResponse dto = new PropertyResponse();
 
@@ -105,11 +120,25 @@ public class PropertyService {
             dto.setLocationDisplay(city + ", " + country);
         }
 
-        if (property.getPropertyAmenities() != null) {
-            List<String> amenityNames = property.getPropertyAmenities().stream()
-                    .map(pa -> pa.getAmenity().getAmenityName())
-                    .toList();
-            dto.setAmenities(amenityNames);
+//        if (property.getPropertyAmenities() != null) {
+//            List<String> amenityNames = property.getPropertyAmenities().stream()
+//                    .map(pa -> pa.getAmenity().getAmenityName())
+//                    .toList();
+//            dto.setAmenities(amenityNames);
+//        }
+
+        if (property.getPropertyAmenities() != null && !property.getPropertyAmenities().isEmpty()) {
+            List<String> names = new ArrayList<>();
+
+            // Use a simple for-each loop instead of a Stream on the proxy collection
+            for (PropertyAmenity pa : property.getPropertyAmenities()) {
+                if (pa.getAmenity() != null) {
+                    names.add(pa.getAmenity().getAmenityName());
+                }
+            }
+            dto.setAmenities(names);
+        } else {
+            dto.setAmenities(new ArrayList<>()); // Return empty list instead of null
         }
         return dto;
     }

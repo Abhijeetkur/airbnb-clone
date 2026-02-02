@@ -27,20 +27,22 @@ public class BookingGuest {
     @JoinColumn(name = "guest_type_id")
     private GuestType guestType;
 
+    @Column(name = "guest_count")
+    private Integer guestCount;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    protected void onUpdate(){
+    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
 
 }

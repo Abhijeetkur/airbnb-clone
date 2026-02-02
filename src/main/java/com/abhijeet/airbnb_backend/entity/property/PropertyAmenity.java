@@ -1,23 +1,21 @@
 package com.abhijeet.airbnb_backend.entity.property;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 @Table(name = "property_amenity")
-@Data
+@Getter
+@Setter
+@ToString(exclude = { "property", "amenity" })
 @AllArgsConstructor
 @NoArgsConstructor
 public class PropertyAmenity {
 
     @EmbeddedId
     private PropertyAmenityFkId propertyAmenityFkId;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("amenityId")
@@ -33,15 +31,29 @@ public class PropertyAmenity {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    protected void onUpdate(){
+    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        PropertyAmenity that = (PropertyAmenity) o;
+        return propertyAmenityFkId != null && propertyAmenityFkId.equals(that.propertyAmenityFkId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

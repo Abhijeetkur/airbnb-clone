@@ -3,9 +3,7 @@ package com.abhijeet.airbnb_backend.entity.review;
 import com.abhijeet.airbnb_backend.entity.property.Property;
 import com.abhijeet.airbnb_backend.entity.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,7 +11,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "user_review")
-@Data
+@Getter
+@Setter
+@ToString(exclude = { "componentRatings", "property", "user" })
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserReview {
@@ -47,13 +47,28 @@ public class UserReview {
     private LocalDateTime updatedAt;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    protected void onUpdate(){
+    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        UserReview that = (UserReview) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

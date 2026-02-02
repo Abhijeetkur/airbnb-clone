@@ -4,6 +4,10 @@ import com.abhijeet.airbnb_backend.entity.user.*;
 import com.abhijeet.airbnb_backend.repository.user.RoleRepository;
 import com.abhijeet.airbnb_backend.repository.user.UserRepository;
 import com.abhijeet.airbnb_backend.repository.user.UserRoleRepository;
+import com.abhijeet.airbnb_backend.repository.booking.BookingStatusRepository;
+import com.abhijeet.airbnb_backend.repository.booking.GuestTypeRepository;
+import com.abhijeet.airbnb_backend.entity.booking.BookingStatus;
+import com.abhijeet.airbnb_backend.entity.booking.GuestType;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,17 +20,22 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BookingStatusRepository bookingStatusRepository;
+    private final GuestTypeRepository guestTypeRepository;
 
     public DataInitializer(
             UserRepository userRepository,
             RoleRepository roleRepository,
             UserRoleRepository userRoleRepository,
-            PasswordEncoder passwordEncoder
-    ) {
+            PasswordEncoder passwordEncoder,
+            BookingStatusRepository bookingStatusRepository,
+            GuestTypeRepository guestTypeRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.bookingStatusRepository = bookingStatusRepository;
+        this.guestTypeRepository = guestTypeRepository;
     }
 
     @PostConstruct
@@ -59,17 +68,14 @@ public class DataInitializer implements CommandLineRunner {
                 });
 
         /* ------------------ ASSIGN ROLE ------------------ */
-        boolean alreadyAssigned =
-                userRoleRepository.existsByUserIdAndRoleId(
-                        admin.getId(),
-                        adminRole.getId()
-                );
+        boolean alreadyAssigned = userRoleRepository.existsByUserIdAndRoleId(
+                admin.getId(),
+                adminRole.getId());
 
         if (!alreadyAssigned) {
             UserRolePkId pk = new UserRolePkId(
                     adminRole.getId(),
-                    admin.getId()
-            );
+                    admin.getId());
 
             UserRole ur = new UserRole();
             ur.setUserRolePkId(pk);
@@ -80,6 +86,35 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         System.out.println("✅ Admin bootstrap completed");
+
+        /* ------------------ BOOKING STATUSES ------------------ */
+        bootstrapBookingStatus("CONFIRMED");
+        bootstrapBookingStatus("PENDING");
+        bootstrapBookingStatus("CANCELLED");
+
+        /* ------------------ GUEST TYPES ------------------ */
+        bootstrapGuestType("ADULT");
+        bootstrapGuestType("CHILD");
+        bootstrapGuestType("INFANT");
+        bootstrapGuestType("PET");
+    }
+
+    private void bootstrapBookingStatus(String statusName) {
+        if (bookingStatusRepository.findByStatusName(statusName).isEmpty()) {
+            BookingStatus status = new BookingStatus();
+            status.setStatusName(statusName);
+            bookingStatusRepository.save(status);
+            System.out.println("Booking status '" + statusName + "' created");
+        }
+    }
+
+    private void bootstrapGuestType(String typeName) {
+        if (guestTypeRepository.findByTypeName(typeName).isEmpty()) {
+            GuestType type = new GuestType();
+            type.setTypeName(typeName);
+            guestTypeRepository.save(type);
+            System.out.println("Guest type '" + typeName + "' created");
+        }
     }
 
     @Override

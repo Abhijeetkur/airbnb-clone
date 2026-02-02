@@ -4,9 +4,7 @@ import com.abhijeet.airbnb_backend.entity.location.Location;
 import com.abhijeet.airbnb_backend.entity.review.UserReview;
 import com.abhijeet.airbnb_backend.entity.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +13,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "property")
-@Data
+@Getter
+@Setter
+@ToString(exclude = { "host", "propertyType", "placeType", "location", "propertyAmenities", "userReviews" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Property {
@@ -81,5 +81,20 @@ public class Property {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Property property = (Property) o;
+        return id != null && id.equals(property.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -1,15 +1,15 @@
 package com.abhijeet.airbnb_backend.entity.review;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "component_rating")
-@Data
+@Getter
+@Setter
+@ToString(exclude = { "userReview", "component" })
 @AllArgsConstructor
 @NoArgsConstructor
 public class ComponentRating {
@@ -32,13 +32,28 @@ public class ComponentRating {
     private LocalDateTime updatedAt;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    protected void onUpdate(){
+    protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ComponentRating that = (ComponentRating) o;
+        return componentRatingFkId != null && componentRatingFkId.equals(that.componentRatingFkId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

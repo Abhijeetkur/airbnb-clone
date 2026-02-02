@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ProblemDetail handleUserAlreadyExistsException(UserAlreadyExistsException ex){
+    public ProblemDetail handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
         // Industry Standard: RFC 7807 Problem Detail
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         problemDetail.setTitle("Email Already Registered");
@@ -25,13 +25,13 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    // Fallback for any other unexpected errors (Industry standard: Don't leak details)
+    // Fallback for any other unexpected errors (Industry standard: Don't leak
+    // details)
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGeneralException(Exception ex){
+    public ProblemDetail handleGeneralException(Exception ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexcepted error occurred. Please try again later."
-        );
+                "An unexcepted error occurred. Please try again later.");
         problemDetail.setTitle("Internal Server Error");
         return problemDetail;
     }
@@ -40,8 +40,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
-                "Your request contains invalid data."
-        );
+                "Your request contains invalid data.");
         problemDetail.setTitle("Validat ion Failed");
         problemDetail.setType(URI.create("https://docs.abhijeet-airbnb.com/errors/validation-error"));
 
@@ -54,7 +53,8 @@ public class GlobalExceptionHandler {
                         fieldError -> fieldError.getDefaultMessage() != null
                                 ? fieldError.getDefaultMessage()
                                 : "Invalid value"
-//                        (existing, replacement) -> existing // Keep the first error if multiple exist for one field
+                // (existing, replacement) -> existing // Keep the first error if multiple exist
+                // for one field
                 ));
 
         // Add the map of errors to the response body
@@ -63,29 +63,27 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ProblemDetail handleEmailConflict(EmailAlreadyExistsException ex) {
         // 409 Conflict is the standard for duplicate resources
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT,
-                ex.getMessage()
-        );
+                ex.getMessage());
         problemDetail.setTitle("Account Conflict");
         problemDetail.setProperty("timestamp", Instant.now());
         problemDetail.setType(URI.create("https://docs.abhijeet-airbnb.com/errors/email-already-registered"));
-        problemDetail.setProperty("errorCode", "USER_001"); // Industry tip: use internal error codes for easier debugging
+        problemDetail.setProperty("errorCode", "USER_001"); // Industry tip: use internal error codes for easier
+                                                            // debugging
 
         return problemDetail;
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ProblemDetail handleBadCredentials(BadCredentialsException ex){
+    public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
         // 1. Created a problem detail for 401 unauthorized
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNAUTHORIZED,
-                ex.getMessage()
-        );
+                ex.getMessage());
 
         // 2. Set title for problem detail
         problemDetail.setTitle("Authentication Failed");
@@ -95,15 +93,24 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-
     @ExceptionHandler(UserNotFoundException.class)
-    public ProblemDetail handleUserNotFound(UserNotFoundException ex){
+    public ProblemDetail handleUserNotFound(UserNotFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
-                ex.getMessage()
-        );
+                ex.getMessage());
         problemDetail.setTitle("User Not found");
         problemDetail.setType(URI.create("https://docs.abhijeet-airbnb.com/errors/user-not-found"));
+        problemDetail.setProperty("timestamp", java.time.Instant.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(PropertyNotFoundException.class)
+    public ProblemDetail handlePropertyNotFound(PropertyNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage());
+        problemDetail.setTitle("Property Not Found");
+        problemDetail.setType(URI.create("https://docs.abhijeet-airbnb.com/errors/property-not-found"));
         problemDetail.setProperty("timestamp", java.time.Instant.now());
         return problemDetail;
     }
