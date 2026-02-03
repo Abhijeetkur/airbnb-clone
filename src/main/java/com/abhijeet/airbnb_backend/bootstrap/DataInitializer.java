@@ -8,6 +8,7 @@ import com.abhijeet.airbnb_backend.repository.booking.BookingStatusRepository;
 import com.abhijeet.airbnb_backend.repository.booking.GuestTypeRepository;
 import com.abhijeet.airbnb_backend.entity.booking.BookingStatus;
 import com.abhijeet.airbnb_backend.entity.booking.GuestType;
+import com.abhijeet.airbnb_backend.repository.review.ComponentRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final BookingStatusRepository bookingStatusRepository;
     private final GuestTypeRepository guestTypeRepository;
+    private final ComponentRepository componentRepository;
 
     public DataInitializer(
             UserRepository userRepository,
@@ -29,13 +31,15 @@ public class DataInitializer implements CommandLineRunner {
             UserRoleRepository userRoleRepository,
             PasswordEncoder passwordEncoder,
             BookingStatusRepository bookingStatusRepository,
-            GuestTypeRepository guestTypeRepository) {
+            GuestTypeRepository guestTypeRepository,
+            ComponentRepository componentRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
         this.bookingStatusRepository = bookingStatusRepository;
         this.guestTypeRepository = guestTypeRepository;
+        this.componentRepository = componentRepository;
     }
 
     @PostConstruct
@@ -97,6 +101,14 @@ public class DataInitializer implements CommandLineRunner {
         bootstrapGuestType("CHILD");
         bootstrapGuestType("INFANT");
         bootstrapGuestType("PET");
+
+        /* ------------------ REVIEW COMPONENTS ------------------ */
+        bootstrapReviewComponent("Cleanliness");
+        bootstrapReviewComponent("Accuracy");
+        bootstrapReviewComponent("Communication");
+        bootstrapReviewComponent("Location");
+        bootstrapReviewComponent("Check-in");
+        bootstrapReviewComponent("Value");
     }
 
     private void bootstrapBookingStatus(String statusName) {
@@ -114,6 +126,15 @@ public class DataInitializer implements CommandLineRunner {
             type.setTypeName(typeName);
             guestTypeRepository.save(type);
             System.out.println("Guest type '" + typeName + "' created");
+        }
+    }
+
+    private void bootstrapReviewComponent(String componentName) {
+        if (componentRepository.findByComponentName(componentName).isEmpty()) {
+            com.abhijeet.airbnb_backend.entity.review.Component component = new com.abhijeet.airbnb_backend.entity.review.Component();
+            component.setComponentName(componentName);
+            componentRepository.save(component);
+            System.out.println("Review component '" + componentName + "' created");
         }
     }
 

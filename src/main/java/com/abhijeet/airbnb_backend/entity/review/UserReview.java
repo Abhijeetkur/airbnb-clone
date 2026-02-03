@@ -27,7 +27,7 @@ public class UserReview {
     @Column(name = "overall_rating")
     private BigDecimal overallRating;
 
-    @Column(name = "review_column")
+    @Column(name = "review_date")
     private LocalDateTime reviewDate;
 
     @OneToMany(mappedBy = "userReview", cascade = CascadeType.ALL, orphanRemoval = true)

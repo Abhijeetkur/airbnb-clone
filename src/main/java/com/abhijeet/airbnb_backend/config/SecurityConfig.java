@@ -54,15 +54,15 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/users/register", "/api/v1/users/login","/error").permitAll()
+                        .requestMatchers("/api/v1/users/register", "/api/v1/users/login", "/error").permitAll()
                         .requestMatchers("/api/v1/users/me").authenticated()
                         .requestMatchers("/api/v1/users/become-host").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/properties/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/property/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/host/**").hasRole("HOST")
                         .requestMatchers("/api/v1/metadata/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 // 2. KEEP THIS FOR LOGOUT
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/users/logout")
@@ -72,19 +72,17 @@ public class SecurityConfig {
                             response.setStatus(HttpServletResponse.SC_OK);
 
                             // 2. Create the custom response body
-                            ApiResponse logoutResponse = new ApiResponse(
+                            ApiResponse<Void> logoutResponse = new ApiResponse<>(
                                     "Logout successful. Session invalidated.",
                                     true,
-                                    LocalDateTime.now().toString()
-                            );
+                                    LocalDateTime.now().toString());
 
                             // 3. Write JSON to the response
                             String jsonResponse = objectMapper.writeValueAsString(logoutResponse);
                             response.getWriter().write(jsonResponse);
                         })
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                )
+                        .deleteCookies("JSESSIONID"))
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
         // Use the authentication provider we defined above

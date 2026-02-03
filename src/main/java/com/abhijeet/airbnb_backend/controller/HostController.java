@@ -22,25 +22,25 @@ public class HostController {
     private UserService userService;
 
     @Autowired
-    private PropertyService propertyService;;
+    private PropertyService propertyService;
+
     @GetMapping("/dashboard")
-    public ResponseEntity<ApiResponse> getHostDashboard(@AuthenticationPrincipal User currentUser) {
+    public ResponseEntity<ApiResponse<Void>> getHostDashboard(@AuthenticationPrincipal User currentUser) {
         // This will only work if the user has ROLE_HOST
-        return ResponseEntity.ok(new ApiResponse(
+        return ResponseEntity.ok(new ApiResponse<>(
                 "Welcome to the Host Dashboard, " + currentUser.getFname(),
                 true,
-                LocalDateTime.now().toString()
-        ));
+                LocalDateTime.now().toString()));
     }
 
     @PostMapping("/properties")
     public ResponseEntity<PropertyResponse> createProperty(
             @Valid @RequestBody PropertyRequest propertyRequest,
-            @AuthenticationPrincipal User currentUser){
+            @AuthenticationPrincipal User currentUser) {
         if (currentUser == null) {
             throw new RuntimeException("User not authenticated");
         }
         PropertyResponse savedProperty = propertyService.addProperty(propertyRequest, currentUser);
-        return new ResponseEntity<>(savedProperty,HttpStatus.CREATED);
+        return new ResponseEntity<>(savedProperty, HttpStatus.CREATED);
     }
 }

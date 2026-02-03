@@ -26,6 +26,9 @@ public class ComponentRating {
     @JoinColumn(name = "review_id")
     private UserReview userReview;
 
+    @Column(name = "rating")
+    private Integer rating;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

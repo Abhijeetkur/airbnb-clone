@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @PostMapping("/become-host")
-    public ResponseEntity<ApiResponse> upgradeToHost(
+    public ResponseEntity<ApiResponse<Void>> upgradeToHost(
             @AuthenticationPrincipal User currentUser,
             jakarta.servlet.http.HttpServletRequest request) {
 
@@ -58,7 +58,7 @@ public class UserController {
 
         if (isAlreadyHost) {
             return ResponseEntity
-                    .ok(new ApiResponse("Welcome Back to your dashboard!", true, LocalDateTime.now().toString()));
+                    .ok(new ApiResponse<>("Welcome Back to your dashboard!", true, LocalDateTime.now().toString()));
         }
 
         User updatedUser = userService.assignRole(currentUser.getId(), "HOST");
@@ -78,8 +78,7 @@ public class UserController {
         jakarta.servlet.http.HttpSession session = request.getSession(true);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
-        return ResponseEntity.ok(new ApiResponse("You are now a Host!", true, LocalDateTime.now().toString()));
+        return ResponseEntity.ok(new ApiResponse<>("You are now a Host!", true, LocalDateTime.now().toString()));
     }
-
 
 }
