@@ -32,5 +32,7 @@ public class PropertyResponse {
     // List of amenity names
     private List<String> amenities;
 
+    private List<String> imageUrls;
+
     private LocalDateTime createdAt;
 }

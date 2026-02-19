@@ -6,7 +6,7 @@ import com.abhijeet.airbnb_backend.entity.location.Location;
 import com.abhijeet.airbnb_backend.entity.property.*;
 import com.abhijeet.airbnb_backend.entity.user.User;
 import com.abhijeet.airbnb_backend.repository.property.*;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +30,8 @@ public class PropertyService {
     private LocationTypeRepository locationRepository;
     @Autowired
     private AmenityRepository amenityRepository;
+    @Autowired
+    private PropertyImageRepository propertyImageRepository;
 
     @Transactional
     public PropertyResponse addProperty(PropertyRequest propertyRequest, User host) {
@@ -71,16 +73,32 @@ public class PropertyService {
                 amenityNamesForResponse.add(amenity.getAmenityName());
             }
         }
+
+        List<String> imageUrlsForResponse = new ArrayList<>();
+        if (propertyRequest.getImageUrls() != null) {
+            for (String imageUrl : propertyRequest.getImageUrls()) {
+                PropertyImage propertyImage = new PropertyImage();
+                propertyImage.setImageUrl(imageUrl);
+                propertyImage.setProperty(savedProperty);
+                propertyImageRepository.save(propertyImage);
+                imageUrlsForResponse.add(imageUrl);
+            }
+        }
+
         PropertyResponse response = mapToResponse(savedProperty);
         response.setAmenities(amenityNamesForResponse);
+        response.setImageUrls(imageUrlsForResponse);
         return response;
     }
 
+    @Transactional(readOnly = true)
     public PropertyResponse getPropertyById(Long id) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found with id: " + id));
         return mapToResponse(property);
     }
+
+    @Transactional(readOnly = true)
     public Page<PropertyResponse> getAllProperties(Pageable pageable) {
         // 1. Fetch the paginated entities from DB
         Page<Property> propertyPage = propertyRepository.findAll(pageable);
@@ -120,12 +138,12 @@ public class PropertyService {
             dto.setLocationDisplay(city + ", " + country);
         }
 
-//        if (property.getPropertyAmenities() != null) {
-//            List<String> amenityNames = property.getPropertyAmenities().stream()
-//                    .map(pa -> pa.getAmenity().getAmenityName())
-//                    .toList();
-//            dto.setAmenities(amenityNames);
-//        }
+        // if (property.getPropertyAmenities() != null) {
+        // List<String> amenityNames = property.getPropertyAmenities().stream()
+        // .map(pa -> pa.getAmenity().getAmenityName())
+        // .toList();
+        // dto.setAmenities(amenityNames);
+        // }
 
         if (property.getPropertyAmenities() != null && !property.getPropertyAmenities().isEmpty()) {
             List<String> names = new ArrayList<>();
@@ -139,6 +157,16 @@ public class PropertyService {
             dto.setAmenities(names);
         } else {
             dto.setAmenities(new ArrayList<>()); // Return empty list instead of null
+        }
+
+        if (property.getImages() != null && !property.getImages().isEmpty()) {
+            List<String> imageUrls = new ArrayList<>();
+            for (PropertyImage image : property.getImages()) {
+                imageUrls.add(image.getImageUrl());
+            }
+            dto.setImageUrls(imageUrls);
+        } else {
+            dto.setImageUrls(new ArrayList<>());
         }
         return dto;
     }

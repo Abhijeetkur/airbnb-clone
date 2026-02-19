@@ -17,4 +17,5 @@ public class UserResponse {
     private String phoneNumber;
     private LocalDate dob;
     private String bio;
+    private String token;
 }

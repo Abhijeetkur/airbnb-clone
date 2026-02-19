@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @ToString(exclude = { "userReview", "component" })
 @AllArgsConstructor
 @NoArgsConstructor
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ComponentRating {
     @EmbeddedId
     private ComponentRatingFkId componentRatingFkId;
@@ -21,6 +22,7 @@ public class ComponentRating {
     @JoinColumn(name = "component_id")
     private Component component;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("reviewId")
     @JoinColumn(name = "review_id")

@@ -31,8 +31,9 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleGeneralException(Exception ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexcepted error occurred. Please try again later.");
+                ex.getMessage());
         problemDetail.setTitle("Internal Server Error");
+        problemDetail.setProperty("exception", ex.getClass().getName());
         return problemDetail;
     }
 

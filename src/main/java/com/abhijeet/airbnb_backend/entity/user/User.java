@@ -26,7 +26,7 @@ import java.util.*;
 })
 @Getter
 @Setter
-@ToString(exclude = {"userRoles", "properties", "userReviews"})
+@ToString(exclude = { "userRoles", "properties", "userReviews" })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,13 +89,16 @@ public class User implements UserDetails {
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (userRoles == null) {
+            return Collections.emptyList();
+        }
+
+        // Debugging print safely
         System.out.println("CheckingRole:" + userRoles.stream()
                 .map(userRole -> new SimpleGrantedAuthority(
                         "ROLE_" + userRole.getRole().getRoleName()))
                 .toList());
-        if (userRoles == null) {
-            return Collections.emptyList();
-        }
+
         return userRoles.stream()
                 .map(userRole -> new SimpleGrantedAuthority(
                         "ROLE_" + userRole.getRole().getRoleName()))
@@ -105,5 +108,25 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

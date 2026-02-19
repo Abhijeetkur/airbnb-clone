@@ -11,7 +11,7 @@ import com.abhijeet.airbnb_backend.exception.UserNotFoundException;
 import com.abhijeet.airbnb_backend.repository.user.RoleRepository;
 import com.abhijeet.airbnb_backend.repository.user.UserRepository;
 import com.abhijeet.airbnb_backend.repository.user.UserRoleRepository;
-import jakarta.servlet.http.HttpSession;
+
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,10 +25,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 public class UserService {
@@ -43,6 +41,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JWTService jwtService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -78,7 +79,11 @@ public class UserService {
         userRole.setRole(defaultRole);
 
         userRoleRepository.save(userRole);
-        // 5. Map Entity to DTO?
+
+        // 5. Generate Token
+        String token = jwtService.generateToken(savedUser);
+
+        // 6. Map Entity to DTO
         UserResponse userResponse = new UserResponse();
         userResponse.setId(savedUser.getId());
         userResponse.setFname(savedUser.getFname());
@@ -87,6 +92,7 @@ public class UserService {
         userResponse.setPhoneNumber(savedUser.getPhoneNumber());
         userResponse.setDob(savedUser.getDob());
         userResponse.setBio(savedUser.getBio());
+        userResponse.setToken(token);
         return userResponse;
     }
 
@@ -97,26 +103,22 @@ public class UserService {
                     loginRequest.getIdentifier(), loginRequest.getPassword());
 
             // 2. The Manager checks the password against the UserDetailsService
-            // If it fails, it throws an exception (which your GlobalHandler will catch)
             Authentication authentication = authenticationManager.authenticate(authRequest);
 
             // 3. Store the successful authentication in the Security Context
-            // This is what makes the user "logged in" for the duration of the session
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // CRITICAL: Save to session so /me works!
-            ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-            HttpSession session = attr.getRequest().getSession(true);
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                    SecurityContextHolder.getContext());
-
-            // 4. Fetch the user to return the DTO
+            // 4. Fetch the user to return the DTO and generate token
             User user = userRepository
                     .findByEmailOrPhoneNumber(loginRequest.getIdentifier(), loginRequest.getIdentifier())
                     .orElseThrow(() -> new UsernameNotFoundException(
                             "No account found with identifier" + loginRequest.getIdentifier()));
 
-            return mapToUserResponse(user);
+            String token = jwtService.generateToken(user);
+            UserResponse response = mapToUserResponse(user);
+            response.setToken(token);
+
+            return response;
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Invalid credentials provided");
         }

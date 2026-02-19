@@ -16,6 +16,7 @@ import java.util.List;
 @ToString(exclude = { "componentRatings", "property", "user" })
 @AllArgsConstructor
 @NoArgsConstructor
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class UserReview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,10 +34,12 @@ public class UserReview {
     @OneToMany(mappedBy = "userReview", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ComponentRating> componentRatings;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "property_id", nullable = false)
     private Property property;
 
+    @com.fasterxml.jackson.annotation.JsonIncludeProperties({ "id", "fname", "lname" })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

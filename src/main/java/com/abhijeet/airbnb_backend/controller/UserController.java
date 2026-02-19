@@ -9,11 +9,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -63,21 +60,6 @@ public class UserController {
 
         User updatedUser = userService.assignRole(currentUser.getId(), "HOST");
 
-        // 1. Create new Auth with fresh authorities (ROLE_USER, ROLE_HOST)
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Authentication newAuth = new UsernamePasswordAuthenticationToken(
-                updatedUser,
-                auth.getCredentials(),
-                updatedUser.getAuthorities());
-
-        // 2. Update the Context Holder
-        SecurityContextHolder.getContext().setAuthentication(newAuth);
-
-        // 3. CRITICAL: Persist this change to the HTTP Session
-        // Without this, the next request will revert to ROLE_USER
-        jakarta.servlet.http.HttpSession session = request.getSession(true);
-        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                SecurityContextHolder.getContext());
         return ResponseEntity.ok(new ApiResponse<>("You are now a Host!", true, LocalDateTime.now().toString()));
     }
 

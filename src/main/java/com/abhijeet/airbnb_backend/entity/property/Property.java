@@ -15,7 +15,7 @@ import java.util.Set;
 @Table(name = "property")
 @Getter
 @Setter
-@ToString(exclude = { "host", "propertyType", "placeType", "location", "propertyAmenities", "userReviews" })
+@ToString(exclude = { "host", "propertyType", "placeType", "location", "propertyAmenities", "userReviews", "images" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Property {
@@ -48,6 +48,9 @@ public class Property {
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserReview> userReviews;
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PropertyImage> images;
 
     private BigDecimal price;
 
